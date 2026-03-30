@@ -1,0 +1,230 @@
+{
+  "selection": {
+    "best_strategy_label": "gaussian",
+    "best_strategy": {
+      "strategy": "gaussian",
+      "lookahead": 2,
+      "sigma": 1.0
+    },
+    "detach_target": true,
+    "normalize_gradients": false,
+    "summary": {
+      "stage1_baseline": {
+        "mean_val_acc": 0.974949985742569,
+        "std_val_acc": 0.0004499852657318115
+      },
+      "stage1_strategy_fixed1": {
+        "mean_val_acc": 0.9756500124931335,
+        "std_val_acc": 0.0011500120162963867
+      },
+      "stage1_strategy_fixed2": {
+        "mean_val_acc": 0.9757499992847443,
+        "std_val_acc": 0.001050025224685669
+      },
+      "stage1_strategy_gaussian": {
+        "mean_val_acc": 0.9765500128269196,
+        "std_val_acc": 0.00135001540184021
+      },
+      "stage1_strategy_uniform": {
+        "mean_val_acc": 0.9756999909877777,
+        "std_val_acc": 0.0017000138759613037
+      },
+      "stage1_strategy_output": {
+        "mean_val_acc": 0.9763000011444092,
+        "std_val_acc": 0.001699984073638916
+      },
+      "stage1_strategy_exp": {
+        "mean_val_acc": 0.9760000109672546,
+        "std_val_acc": 0.0009999871253967285
+      },
+      "stage1_detach_True": {
+        "mean_val_acc": 0.9765500128269196,
+        "std_val_acc": 0.00135001540184021
+      },
+      "stage1_detach_False": {
+        "mean_val_acc": 0.9760999977588654,
+        "std_val_acc": 0.0018999874591827393
+      },
+      "stage1_gradnorm_False": {
+        "mean_val_acc": 0.9759499728679657,
+        "std_val_acc": 0.000550001859664917
+      },
+      "stage1_gradnorm_True": {
+        "mean_val_acc": 0.9456999897956848,
+        "std_val_acc": 0.0023999810218811035
+      }
+    }
+  },
+  "aggregated": [
+    {
+      "beta": 0.0,
+      "mean_val_acc": 0.7383333444595337,
+      "std_val_acc": 0.0008333325386047363,
+      "mean_test_acc": 0.7271052598953247,
+      "std_test_acc": 0.001315772533416748,
+      "runs": 2
+    },
+    {
+      "beta": 0.1,
+      "mean_val_acc": 0.7424166798591614,
+      "std_val_acc": 0.012250006198883057,
+      "mean_test_acc": 0.7324999868869781,
+      "std_test_acc": 0.004868417978286743,
+      "runs": 2
+    },
+    {
+      "beta": 0.2,
+      "mean_val_acc": 0.7434166371822357,
+      "std_val_acc": 0.012749999761581421,
+      "mean_test_acc": 0.7389473915100098,
+      "std_test_acc": 0.004210531711578369,
+      "runs": 2
+    }
+  ],
+  "raw_results": [
+    {
+      "run_name": "stage3_ag_news_beta0.0_seed0",
+      "seed": 0,
+      "dataset": "ag_news",
+      "model": "text_transformer",
+      "beta": 0.0,
+      "aux_enabled": false,
+      "strategy": "gaussian",
+      "lookahead": 2,
+      "sigma": 1.0,
+      "detach_target": true,
+      "normalize_gradients": false,
+      "max_epochs": 3,
+      "train_subset": 0.05,
+      "val_subset": 0.5,
+      "test_subset": 0.5,
+      "val_acc": 0.737500011920929,
+      "val_total_loss": 0.7019991874694824,
+      "test_acc": 0.725789487361908,
+      "test_total_loss": 0.7279645800590515,
+      "duration_seconds": 246.14807319641113,
+      "best_checkpoint": "C:\\Users\\DavWi\\Main\\Projekte\\greedy_auxiliary_loss\\results\\checkpoints\\stage3_ag_news_beta0.0_seed0\\best.ckpt",
+      "log_dir": "results\\lightning_logs\\stage3_ag_news_beta0.0_seed0"
+    },
+    {
+      "run_name": "stage3_ag_news_beta0.0_seed1",
+      "seed": 1,
+      "dataset": "ag_news",
+      "model": "text_transformer",
+      "beta": 0.0,
+      "aux_enabled": false,
+      "strategy": "gaussian",
+      "lookahead": 2,
+      "sigma": 1.0,
+      "detach_target": true,
+      "normalize_gradients": false,
+      "max_epochs": 3,
+      "train_subset": 0.05,
+      "val_subset": 0.5,
+      "test_subset": 0.5,
+      "val_acc": 0.7391666769981384,
+      "val_total_loss": 0.6981050372123718,
+      "test_acc": 0.7284210324287415,
+      "test_total_loss": 0.7106015086174011,
+      "duration_seconds": 242.73789477348328,
+      "best_checkpoint": "C:\\Users\\DavWi\\Main\\Projekte\\greedy_auxiliary_loss\\results\\checkpoints\\stage3_ag_news_beta0.0_seed1\\best.ckpt",
+      "log_dir": "results\\lightning_logs\\stage3_ag_news_beta0.0_seed1"
+    },
+    {
+      "run_name": "stage3_ag_news_beta0.1_seed0",
+      "seed": 0,
+      "dataset": "ag_news",
+      "model": "text_transformer",
+      "beta": 0.1,
+      "aux_enabled": true,
+      "strategy": "gaussian",
+      "lookahead": 2,
+      "sigma": 1.0,
+      "detach_target": true,
+      "normalize_gradients": false,
+      "max_epochs": 3,
+      "train_subset": 0.05,
+      "val_subset": 0.5,
+      "test_subset": 0.5,
+      "val_acc": 0.7546666860580444,
+      "val_total_loss": 0.6233892440795898,
+      "test_acc": 0.7373684048652649,
+      "test_total_loss": 0.652496874332428,
+      "duration_seconds": 248.0945107936859,
+      "best_checkpoint": "C:\\Users\\DavWi\\Main\\Projekte\\greedy_auxiliary_loss\\results\\checkpoints\\stage3_ag_news_beta0.1_seed0\\best.ckpt",
+      "log_dir": "results\\lightning_logs\\stage3_ag_news_beta0.1_seed0"
+    },
+    {
+      "run_name": "stage3_ag_news_beta0.1_seed1",
+      "seed": 1,
+      "dataset": "ag_news",
+      "model": "text_transformer",
+      "beta": 0.1,
+      "aux_enabled": true,
+      "strategy": "gaussian",
+      "lookahead": 2,
+      "sigma": 1.0,
+      "detach_target": true,
+      "normalize_gradients": false,
+      "max_epochs": 3,
+      "train_subset": 0.05,
+      "val_subset": 0.5,
+      "test_subset": 0.5,
+      "val_acc": 0.7301666736602783,
+      "val_total_loss": 0.6665882468223572,
+      "test_acc": 0.7276315689086914,
+      "test_total_loss": 0.6729593873023987,
+      "duration_seconds": 248.64506340026855,
+      "best_checkpoint": "C:\\Users\\DavWi\\Main\\Projekte\\greedy_auxiliary_loss\\results\\checkpoints\\stage3_ag_news_beta0.1_seed1\\best.ckpt",
+      "log_dir": "results\\lightning_logs\\stage3_ag_news_beta0.1_seed1"
+    },
+    {
+      "run_name": "stage3_ag_news_beta0.2_seed0",
+      "seed": 0,
+      "dataset": "ag_news",
+      "model": "text_transformer",
+      "beta": 0.2,
+      "aux_enabled": true,
+      "strategy": "gaussian",
+      "lookahead": 2,
+      "sigma": 1.0,
+      "detach_target": true,
+      "normalize_gradients": false,
+      "max_epochs": 3,
+      "train_subset": 0.05,
+      "val_subset": 0.5,
+      "test_subset": 0.5,
+      "val_acc": 0.7561666369438171,
+      "val_total_loss": 0.5632009506225586,
+      "test_acc": 0.7431579232215881,
+      "test_total_loss": 0.5863425135612488,
+      "duration_seconds": 248.5490288734436,
+      "best_checkpoint": "C:\\Users\\DavWi\\Main\\Projekte\\greedy_auxiliary_loss\\results\\checkpoints\\stage3_ag_news_beta0.2_seed0\\best.ckpt",
+      "log_dir": "results\\lightning_logs\\stage3_ag_news_beta0.2_seed0"
+    },
+    {
+      "run_name": "stage3_ag_news_beta0.2_seed1",
+      "seed": 1,
+      "dataset": "ag_news",
+      "model": "text_transformer",
+      "beta": 0.2,
+      "aux_enabled": true,
+      "strategy": "gaussian",
+      "lookahead": 2,
+      "sigma": 1.0,
+      "detach_target": true,
+      "normalize_gradients": false,
+      "max_epochs": 3,
+      "train_subset": 0.05,
+      "val_subset": 0.5,
+      "test_subset": 0.5,
+      "val_acc": 0.7306666374206543,
+      "val_total_loss": 0.6054946184158325,
+      "test_acc": 0.7347368597984314,
+      "test_total_loss": 0.608293354511261,
+      "duration_seconds": 248.89276337623596,
+      "best_checkpoint": "C:\\Users\\DavWi\\Main\\Projekte\\greedy_auxiliary_loss\\results\\checkpoints\\stage3_ag_news_beta0.2_seed1\\best.ckpt",
+      "log_dir": "results\\lightning_logs\\stage3_ag_news_beta0.2_seed1"
+    }
+  ]
+}

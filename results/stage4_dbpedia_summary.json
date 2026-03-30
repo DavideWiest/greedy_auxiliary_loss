@@ -1,0 +1,174 @@
+{
+  "selection": {
+    "best_strategy_label": "gaussian",
+    "best_strategy": {
+      "strategy": "gaussian",
+      "lookahead": 2,
+      "sigma": 1.0
+    },
+    "detach_target": true,
+    "normalize_gradients": false,
+    "summary": {
+      "stage1_baseline": {
+        "mean_val_acc": 0.974949985742569,
+        "std_val_acc": 0.0004499852657318115
+      },
+      "stage1_strategy_fixed1": {
+        "mean_val_acc": 0.9756500124931335,
+        "std_val_acc": 0.0011500120162963867
+      },
+      "stage1_strategy_fixed2": {
+        "mean_val_acc": 0.9757499992847443,
+        "std_val_acc": 0.001050025224685669
+      },
+      "stage1_strategy_gaussian": {
+        "mean_val_acc": 0.9765500128269196,
+        "std_val_acc": 0.00135001540184021
+      },
+      "stage1_strategy_uniform": {
+        "mean_val_acc": 0.9756999909877777,
+        "std_val_acc": 0.0017000138759613037
+      },
+      "stage1_strategy_output": {
+        "mean_val_acc": 0.9763000011444092,
+        "std_val_acc": 0.001699984073638916
+      },
+      "stage1_strategy_exp": {
+        "mean_val_acc": 0.9760000109672546,
+        "std_val_acc": 0.0009999871253967285
+      },
+      "stage1_detach_True": {
+        "mean_val_acc": 0.9765500128269196,
+        "std_val_acc": 0.00135001540184021
+      },
+      "stage1_detach_False": {
+        "mean_val_acc": 0.9760999977588654,
+        "std_val_acc": 0.0018999874591827393
+      },
+      "stage1_gradnorm_False": {
+        "mean_val_acc": 0.9759499728679657,
+        "std_val_acc": 0.000550001859664917
+      },
+      "stage1_gradnorm_True": {
+        "mean_val_acc": 0.9456999897956848,
+        "std_val_acc": 0.0023999810218811035
+      }
+    }
+  },
+  "aggregated": [
+    {
+      "beta": 0.0,
+      "mean_val_acc": 0.8687500059604645,
+      "std_val_acc": 0.007500022649765015,
+      "mean_test_acc": 0.8647142946720123,
+      "std_test_acc": 0.007142871618270874,
+      "runs": 2
+    },
+    {
+      "beta": 0.2,
+      "mean_val_acc": 0.869910717010498,
+      "std_val_acc": 0.011874973773956299,
+      "mean_test_acc": 0.8720000088214874,
+      "std_test_acc": 0.011571437120437622,
+      "runs": 2
+    }
+  ],
+  "raw_results": [
+    {
+      "run_name": "stage4_dbpedia_beta0.0_seed0",
+      "seed": 0,
+      "dataset": "dbpedia_14",
+      "model": "text_transformer",
+      "beta": 0.0,
+      "aux_enabled": false,
+      "strategy": "gaussian",
+      "lookahead": 2,
+      "sigma": 1.0,
+      "detach_target": true,
+      "normalize_gradients": false,
+      "max_epochs": 2,
+      "train_subset": 0.02,
+      "val_subset": 0.1,
+      "test_subset": 0.1,
+      "val_acc": 0.8762500286102295,
+      "val_total_loss": 0.3956948518753052,
+      "test_acc": 0.8718571662902832,
+      "test_total_loss": 0.3888339400291443,
+      "duration_seconds": 291.9727690219879,
+      "best_checkpoint": "C:\\Users\\DavWi\\Main\\Projekte\\greedy_auxiliary_loss\\results\\checkpoints\\stage4_dbpedia_beta0.0_seed0\\best.ckpt",
+      "log_dir": "results\\lightning_logs\\stage4_dbpedia_beta0.0_seed0"
+    },
+    {
+      "run_name": "stage4_dbpedia_beta0.0_seed1",
+      "seed": 1,
+      "dataset": "dbpedia_14",
+      "model": "text_transformer",
+      "beta": 0.0,
+      "aux_enabled": false,
+      "strategy": "gaussian",
+      "lookahead": 2,
+      "sigma": 1.0,
+      "detach_target": true,
+      "normalize_gradients": false,
+      "max_epochs": 2,
+      "train_subset": 0.02,
+      "val_subset": 0.1,
+      "test_subset": 0.1,
+      "val_acc": 0.8612499833106995,
+      "val_total_loss": 0.4411928057670593,
+      "test_acc": 0.8575714230537415,
+      "test_total_loss": 0.4478711187839508,
+      "duration_seconds": 253.4021074771881,
+      "best_checkpoint": "C:\\Users\\DavWi\\Main\\Projekte\\greedy_auxiliary_loss\\results\\checkpoints\\stage4_dbpedia_beta0.0_seed1\\best.ckpt",
+      "log_dir": "results\\lightning_logs\\stage4_dbpedia_beta0.0_seed1"
+    },
+    {
+      "run_name": "stage4_dbpedia_beta0.2_seed0",
+      "seed": 0,
+      "dataset": "dbpedia_14",
+      "model": "text_transformer",
+      "beta": 0.2,
+      "aux_enabled": true,
+      "strategy": "gaussian",
+      "lookahead": 2,
+      "sigma": 1.0,
+      "detach_target": true,
+      "normalize_gradients": false,
+      "max_epochs": 2,
+      "train_subset": 0.02,
+      "val_subset": 0.1,
+      "test_subset": 0.1,
+      "val_acc": 0.8817856907844543,
+      "val_total_loss": 0.31848031282424927,
+      "test_acc": 0.883571445941925,
+      "test_total_loss": 0.32102593779563904,
+      "duration_seconds": 254.45274353027344,
+      "best_checkpoint": "C:\\Users\\DavWi\\Main\\Projekte\\greedy_auxiliary_loss\\results\\checkpoints\\stage4_dbpedia_beta0.2_seed0\\best.ckpt",
+      "log_dir": "results\\lightning_logs\\stage4_dbpedia_beta0.2_seed0"
+    },
+    {
+      "run_name": "stage4_dbpedia_beta0.2_seed1",
+      "seed": 1,
+      "dataset": "dbpedia_14",
+      "model": "text_transformer",
+      "beta": 0.2,
+      "aux_enabled": true,
+      "strategy": "gaussian",
+      "lookahead": 2,
+      "sigma": 1.0,
+      "detach_target": true,
+      "normalize_gradients": false,
+      "max_epochs": 2,
+      "train_subset": 0.02,
+      "val_subset": 0.1,
+      "test_subset": 0.1,
+      "val_acc": 0.8580357432365417,
+      "val_total_loss": 0.3834711015224457,
+      "test_acc": 0.8604285717010498,
+      "test_total_loss": 0.37927818298339844,
+      "duration_seconds": 249.54621124267578,
+      "best_checkpoint": "C:\\Users\\DavWi\\Main\\Projekte\\greedy_auxiliary_loss\\results\\checkpoints\\stage4_dbpedia_beta0.2_seed1\\best.ckpt",
+      "log_dir": "results\\lightning_logs\\stage4_dbpedia_beta0.2_seed1"
+    }
+  ]
+}
