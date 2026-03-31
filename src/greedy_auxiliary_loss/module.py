@@ -61,6 +61,8 @@ class ClassificationModule(pl.LightningModule):
         num_classes = int(dataset_metadata["num_classes"])
         self.automatic_optimization = False
         self._scheduler: torch.optim.lr_scheduler.LRScheduler | None = None
+        self.register_buffer("aux_scale_ema", torch.tensor(1.0), persistent=False)
+        self._loss_ema_initialized = False
         if config.auxiliary.enabled and config.auxiliary.beta > 0.0:
             self.auxiliary_objective = LayerwiseAuxiliaryObjective(
                 layer_dims=self.model.hidden_dims,
@@ -74,6 +76,7 @@ class ClassificationModule(pl.LightningModule):
                 loss_type=config.auxiliary.loss_type,
                 projector_seed=config.auxiliary.projector_seed,
                 skip_last_aux_layers=config.auxiliary.skip_last_aux_layers,
+                direct_hidden_target=config.auxiliary.direct_hidden_target,
             )
         else:
             self.auxiliary_objective = None
@@ -138,6 +141,23 @@ class ClassificationModule(pl.LightningModule):
             return beta * progress
         raise ValueError(f"Unsupported beta schedule: {self.config.auxiliary.beta_schedule}")
 
+    def _current_aux_scale(self, primary_loss: torch.Tensor, aux_loss: torch.Tensor, stage: str) -> torch.Tensor:
+        if aux_loss.detach().abs().item() < 1e-12:
+            return primary_loss.new_tensor(1.0)
+        scale_max = max(1.0, float(self.config.auxiliary.aux_scale_max))
+        batch_scale = (primary_loss.detach() / aux_loss.detach().clamp_min(1e-12)).clamp(1.0 / scale_max, scale_max)
+        if stage == "train":
+            decay = self.config.auxiliary.loss_ema_decay
+            if not self._loss_ema_initialized:
+                self.aux_scale_ema.copy_(batch_scale)
+                self._loss_ema_initialized = True
+            else:
+                self.aux_scale_ema.mul_(decay).add_(batch_scale * (1.0 - decay))
+            return batch_scale
+        if self._loss_ema_initialized:
+            return self.aux_scale_ema.clamp(1.0 / scale_max, scale_max)
+        return batch_scale
+
     def _step(self, batch: tuple[torch.Tensor, torch.Tensor], stage: str) -> dict[str, Any]:
         if isinstance(batch, dict):
             targets = batch["labels"]
@@ -151,18 +171,43 @@ class ClassificationModule(pl.LightningModule):
         if self.auxiliary_objective is not None:
             aux_loss, _ = self.auxiliary_objective(hidden_states, logits)
         beta = self._current_beta()
-        total_loss = (1.0 - beta) * primary_loss + beta * aux_loss
+        aux_scale = logits.new_tensor(1.0)
+        effective_aux_weight = logits.new_tensor(0.0)
+        beta_mode = self.config.auxiliary.beta_mode.lower()
+        if self.auxiliary_objective is None or beta <= 0.0:
+            total_loss = primary_loss
+        elif beta_mode == "convex":
+            total_loss = (1.0 - beta) * primary_loss + beta * aux_loss
+            effective_aux_weight = logits.new_tensor(beta)
+        elif beta_mode == "gradient_share":
+            total_loss = (1.0 - beta) * primary_loss + beta * aux_loss
+            effective_aux_weight = logits.new_tensor(beta)
+        elif beta_mode == "odds_ratio_balanced":
+            aux_scale = self._current_aux_scale(primary_loss=primary_loss, aux_loss=aux_loss, stage=stage)
+            scaled_aux_loss = aux_scale * aux_loss
+            if beta >= 1.0:
+                total_loss = scaled_aux_loss
+                effective_aux_weight = logits.new_tensor(float("inf"))
+            else:
+                effective_aux_weight = logits.new_tensor(beta / max(1e-8, 1.0 - beta))
+                total_loss = primary_loss + effective_aux_weight * scaled_aux_loss
+        else:
+            raise ValueError(f"Unsupported beta mode: {self.config.auxiliary.beta_mode}")
         predictions = logits.argmax(dim=-1)
         accuracy = (predictions == targets).float().mean()
         self.log(f"{stage}/primary_loss", primary_loss, on_step=False, on_epoch=True, prog_bar=stage != "train")
         self.log(f"{stage}/aux_loss", aux_loss, on_step=False, on_epoch=True)
         self.log(f"{stage}/total_loss", total_loss, on_step=False, on_epoch=True, prog_bar=stage != "train")
         self.log(f"{stage}/acc", accuracy, on_step=False, on_epoch=True, prog_bar=True)
+        if stage == "train" and self.auxiliary_objective is not None:
+            self.log("train/aux_scale", aux_scale, on_step=False, on_epoch=True)
         return {
             "primary_loss": primary_loss,
             "aux_loss": aux_loss,
             "total_loss": total_loss,
             "beta": beta,
+            "aux_scale": aux_scale,
+            "effective_aux_weight": effective_aux_weight,
         }
 
     def _apply_normalized_gradients(
@@ -205,8 +250,11 @@ class ClassificationModule(pl.LightningModule):
         optimizer.zero_grad(set_to_none=True)
         should_normalize = (
             self.auxiliary_objective is not None
-            and self.config.auxiliary.normalize_gradients
-            and 0.0 < step_outputs["beta"] < 1.0
+            and (
+                self.config.auxiliary.normalize_gradients
+                or self.config.auxiliary.beta_mode.lower() == "gradient_share"
+            )
+            and step_outputs["beta"] > 0.0
         )
         if should_normalize:
             primary_norm, aux_norm = self._apply_normalized_gradients(

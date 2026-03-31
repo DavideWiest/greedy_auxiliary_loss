@@ -48,6 +48,9 @@ class AuxiliaryLossConfig:
     enabled: bool = False
     beta: float = 0.0
     beta_schedule: str = "constant"
+    beta_mode: str = "convex"
+    loss_ema_decay: float = 0.95
+    aux_scale_max: float = 100.0
     strategy: str = "fixed"
     lookahead: int = 1
     sigma: float = 1.0
@@ -58,6 +61,7 @@ class AuxiliaryLossConfig:
     loss_type: str = "cosine"
     projector_seed: int = 17
     skip_last_aux_layers: int = 0
+    direct_hidden_target: bool = False
 
 
 @dataclass

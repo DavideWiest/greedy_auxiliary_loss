@@ -59,6 +59,7 @@ class LayerwiseAuxiliaryObjective(nn.Module):
         loss_type: str = "cosine",
         projector_seed: int = 17,
         skip_last_aux_layers: int = 0,
+        direct_hidden_target: bool = False,
     ) -> None:
         super().__init__()
         if not layer_dims:
@@ -71,25 +72,39 @@ class LayerwiseAuxiliaryObjective(nn.Module):
         self.loss_type = loss_type
         self.aux_dim = aux_dim or layer_dims[0]
         self.skip_last_aux_layers = max(0, skip_last_aux_layers)
-        self.predictors = nn.ModuleList(
-            [nn.Sequential(nn.LayerNorm(dim), nn.Linear(dim, self.aux_dim)) for dim in layer_dims]
-        )
+        self.direct_hidden_target = direct_hidden_target
+        if direct_hidden_target:
+            if include_output:
+                raise ValueError("Direct hidden-state targets do not support include_output=True.")
+            if len(set(layer_dims)) != 1:
+                raise ValueError("Direct hidden-state targets require all hidden layers to share one dimension.")
+            self.predictors = None
+        else:
+            self.predictors = nn.ModuleList(
+                [nn.Sequential(nn.LayerNorm(dim), nn.Linear(dim, self.aux_dim)) for dim in layer_dims]
+            )
         candidate_dims = list(layer_dims)
         if include_output:
             candidate_dims.append(num_classes)
-        for idx, dim in enumerate(candidate_dims):
-            projection = (
-                torch.eye(dim, self.aux_dim)
-                if dim == self.aux_dim
-                else _orthogonal_projection(dim, self.aux_dim, seed=projector_seed + idx)
-            )
-            self.register_buffer(f"projection_{idx}", projection, persistent=False)
+        if not direct_hidden_target:
+            for idx, dim in enumerate(candidate_dims):
+                projection = (
+                    torch.eye(dim, self.aux_dim)
+                    if dim == self.aux_dim
+                    else _orthogonal_projection(dim, self.aux_dim, seed=projector_seed + idx)
+                )
+                self.register_buffer(f"projection_{idx}", projection, persistent=False)
 
     def _project_candidate(self, tensor: torch.Tensor, candidate_index: int) -> torch.Tensor:
         projection = getattr(self, f"projection_{candidate_index}")
         return F.normalize(tensor @ projection, dim=-1)
 
+    def _prepare_direct_hidden(self, tensor: torch.Tensor) -> torch.Tensor:
+        return F.layer_norm(tensor, normalized_shape=(tensor.shape[-1],))
+
     def _pairwise_loss(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        if self.direct_hidden_target:
+            return F.mse_loss(prediction, target)
         prediction = F.normalize(prediction, dim=-1)
         target = F.normalize(target, dim=-1)
         if self.loss_type == "mse":
@@ -103,9 +118,12 @@ class LayerwiseAuxiliaryObjective(nn.Module):
         hidden_states: list[torch.Tensor],
         logits: torch.Tensor,
     ) -> tuple[torch.Tensor, dict[str, float]]:
-        candidates = [self._project_candidate(hidden, idx) for idx, hidden in enumerate(hidden_states)]
-        if self.include_output:
-            candidates.append(self._project_candidate(logits, len(hidden_states)))
+        if self.direct_hidden_target:
+            candidates = [self._prepare_direct_hidden(hidden) for hidden in hidden_states]
+        else:
+            candidates = [self._project_candidate(hidden, idx) for idx, hidden in enumerate(hidden_states)]
+            if self.include_output:
+                candidates.append(self._project_candidate(logits, len(hidden_states)))
         losses: list[torch.Tensor] = []
         per_layer: dict[str, float] = {}
         total_candidates = len(candidates)
@@ -124,7 +142,7 @@ class LayerwiseAuxiliaryObjective(nn.Module):
             target = sum(weight * candidate for weight, candidate in zip(weights, future_candidates))
             if self.detach_target:
                 target = target.detach()
-            prediction = self.predictors[layer_index](hidden)
+            prediction = self._prepare_direct_hidden(hidden) if self.direct_hidden_target else self.predictors[layer_index](hidden)
             layer_loss = self._pairwise_loss(prediction, target)
             losses.append(layer_loss)
             per_layer[f"layer_{layer_index}_aux_loss"] = float(layer_loss.detach().cpu())

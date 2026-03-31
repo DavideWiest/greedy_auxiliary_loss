@@ -44,10 +44,20 @@ The full-budget CIFAR rerun materially changed the picture. The upgraded baselin
 Within the detached strategy scan at $\beta=0.2$, the validation winner was the output-only target, while the best single-seed test score among the detached strategies came from fixed lookahead 2. More importantly, the detached constant-$\beta$ sweep did not beat the full-budget baseline robustly. A matched two-seed comparison at $\beta=0.5$ gave 0.6454 for the detached output-target variant, which is below the baseline at 0.6487.
 
 ![CIFAR-100 full-budget strategy scan](figures/cifar100_full_strategy.png)
+![CIFAR-100 full-budget detached beta sweep](figures/cifar100_full_beta_sweep.png)
 
 The most informative follow-up was to remove the detach. On the same full-budget CIFAR recipe, the output-target auxiliary loss with no detach and $\beta=0.5$ reached 0.6542 mean test accuracy over two seeds, a gain of 0.0055 over the baseline and 0.0087 over the matched detached variant. A nearby no-detach setting at $\beta=0.4$ also improved over baseline, but less strongly. In contrast, a linearly decayed $\beta=0.8$ schedule and the shallow-only auxiliary variants did not produce a robust win.
 
 ![CIFAR-100 full-budget follow-ups](figures/cifar100_full_followups.png)
+
+## Direct hidden-target follow-up
+
+After the logits and projection choices became a point of contention, I ran a stricter CIFAR-100 follow-up that removes both. In that variant, the auxiliary target is built only from downstream hidden states, all hidden layers share the same width by construction, the auxiliary loss is direct coordinate-wise MSE on normalized hidden states, and `detach_target=True` is fixed. I also changed the meaning of `beta`: instead of using `beta` as a raw loss coefficient, the new study uses gradient-share normalization so that `beta` directly controls the auxiliary share of the update.
+
+Under a CPU-feasible full-data 4-layer ViT recipe, that change fixed the earlier usability issue with `beta`. The new sweep is no longer flat until `beta=1.0`; performance falls smoothly as `beta` increases. The best positive setting was `beta=0.1`, but it still underperformed the baseline. The validation-best strategy at `beta=0.1` was fixed lookahead 1, and the best positive test accuracy was `0.1102` versus the baseline at `0.1265`. A seed-1 confirmation showed the same pattern: `0.1061` at `beta=0.1` versus `0.1227` for the baseline.
+
+![CIFAR-100 direct hidden-target strategy scan](figures/cifar100_direct_hidden_strategy.png)
+![CIFAR-100 direct hidden-target beta sweep](figures/cifar100_direct_hidden_beta_sweep.png)
 
 ## Interpretation
 

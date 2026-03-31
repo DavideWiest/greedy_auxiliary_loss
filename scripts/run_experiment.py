@@ -45,6 +45,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--label-smoothing", type=float, default=0.0)
     parser.add_argument("--beta", type=float, default=0.0)
     parser.add_argument("--beta-schedule", choices=["constant", "linear_decay", "linear_warmup"], default="constant")
+    parser.add_argument("--beta-mode", choices=["convex", "odds_ratio_balanced", "gradient_share"], default="convex")
+    parser.add_argument("--loss-ema-decay", type=float, default=0.95)
+    parser.add_argument("--aux-scale-max", type=float, default=100.0)
     parser.add_argument("--strategy", choices=["fixed", "gaussian", "uniform", "output", "exponential"], default="fixed")
     parser.add_argument("--lookahead", type=int, default=1)
     parser.add_argument("--sigma", type=float, default=1.0)
@@ -53,6 +56,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--normalize-gradients", action="store_true", default=False)
     parser.add_argument("--aux-dim", type=int, default=0)
     parser.add_argument("--skip-last-aux-layers", type=int, default=0)
+    parser.add_argument("--direct-hidden-target", action="store_true", default=False)
     parser.add_argument("--output-dir", default="results")
     parser.add_argument("--limit-train-batches", type=float, default=1.0)
     parser.add_argument("--limit-val-batches", type=float, default=1.0)
@@ -101,6 +105,9 @@ def main() -> None:
             enabled=args.beta > 0.0,
             beta=args.beta,
             beta_schedule=args.beta_schedule,
+            beta_mode=args.beta_mode,
+            loss_ema_decay=args.loss_ema_decay,
+            aux_scale_max=args.aux_scale_max,
             strategy=args.strategy,
             lookahead=args.lookahead,
             sigma=args.sigma,
@@ -109,6 +116,7 @@ def main() -> None:
             normalize_gradients=args.normalize_gradients,
             aux_dim=args.aux_dim,
             skip_last_aux_layers=args.skip_last_aux_layers,
+            direct_hidden_target=args.direct_hidden_target,
         ),
         trainer=TrainerConfig(
             limit_train_batches=args.limit_train_batches,

@@ -88,7 +88,14 @@ def save_beta_sweep_plot(frame: pd.DataFrame, path: str | Path, title: str) -> N
             alpha=0.16,
             color=color,
         )
-        axis.set_title(str(dataset_name).replace("cifar100", "CIFAR-100").replace("mnist", "MNIST"))
+        pretty_name = (
+            str(dataset_name)
+            .replace("cifar100", "CIFAR-100")
+            .replace("mnist", "MNIST")
+            .replace("_", " ")
+            .strip()
+        )
+        axis.set_title(pretty_name)
         axis.set_xlabel(r"$\beta$")
         axis.set_ylabel("Test accuracy")
         axis.set_xticks(sorted(subset["beta"].unique()))

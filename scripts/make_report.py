@@ -153,6 +153,23 @@ def main() -> None:
         title="CIFAR-100 full-budget strategy scan",
     )
 
+    cifar_full_beta_frame = pd.DataFrame(
+        [
+            {
+                "dataset": "cifar100_full",
+                "beta": row["beta"],
+                "mean": row["mean_test_acc"],
+                "std": row["std_test_acc"],
+            }
+            for row in cifar_full["beta_summary"]
+        ]
+    ).sort_values("beta")
+    save_beta_sweep_plot(
+        cifar_full_beta_frame,
+        "reports/figures/cifar100_full_beta_sweep.png",
+        title="CIFAR-100 full-budget detached beta sweep",
+    )
+
     baseline_full = aggregate_named_runs(
         all_runs,
         ["cifar100_full_baseline_seed0", "cifar100_full_confirm_beta0.0_seed1"],
@@ -287,6 +304,7 @@ The full-budget CIFAR rerun materially changed the picture. The upgraded baselin
 Within the detached strategy scan at $\\beta=0.2$, the validation winner was the output-only target, while the best single-seed test score among the detached strategies came from fixed lookahead 2. More importantly, the detached constant-$\\beta$ sweep did not beat the full-budget baseline robustly. A matched two-seed comparison at $\\beta=0.5$ gave {detach_beta05["mean_test_acc"]:.4f} for the detached output-target variant, which is below the baseline at {baseline_full["mean_test_acc"]:.4f}.
 
 ![CIFAR-100 full-budget strategy scan](figures/cifar100_full_strategy.png)
+![CIFAR-100 full-budget detached beta sweep](figures/cifar100_full_beta_sweep.png)
 
 The most informative follow-up was to remove the detach. On the same full-budget CIFAR recipe, the output-target auxiliary loss with no detach and $\\beta=0.5$ reached {nodetach_beta05["mean_test_acc"]:.4f} mean test accuracy over two seeds, a gain of {nodetach_beta05["mean_test_acc"] - baseline_full["mean_test_acc"]:.4f} over the baseline and {nodetach_beta05["mean_test_acc"] - detach_beta05["mean_test_acc"]:.4f} over the matched detached variant. A nearby no-detach setting at $\\beta=0.4$ also improved over baseline, but less strongly. In contrast, a linearly decayed $\\beta=0.8$ schedule and the shallow-only auxiliary variants did not produce a robust win.
 
@@ -322,6 +340,7 @@ This repository studies a layerwise auxiliary objective in which each hidden lay
 
 The pilot transfer study still matters because it shows the idea is portable. The best observed pilot gains were `+0.0019` on MNIST, `+0.0046` on the tiny CIFAR-100 pilot, `+0.0118` on AG News, and `+0.0073` on DBPedia 14. But the stronger CIFAR rerun is the better indicator of what survives a credible baseline: the full-budget baseline reached `{baseline_full["mean_test_acc"]:.4f}` mean test accuracy over two seeds, and the best confirmed auxiliary variant improved that to `{nodetach_beta05["mean_test_acc"]:.4f}`.
 
+![CIFAR-100 full-budget detached beta sweep](reports/figures/cifar100_full_beta_sweep.png)
 ![CIFAR-100 full-budget follow-ups](reports/figures/cifar100_full_followups.png)
 ![Absolute gain from the best pilot auxiliary setting](reports/figures/dataset_summary.png)
 
