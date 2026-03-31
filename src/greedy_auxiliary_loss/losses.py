@@ -58,6 +58,7 @@ class LayerwiseAuxiliaryObjective(nn.Module):
         aux_dim: int = 0,
         loss_type: str = "cosine",
         projector_seed: int = 17,
+        skip_last_aux_layers: int = 0,
     ) -> None:
         super().__init__()
         if not layer_dims:
@@ -69,6 +70,7 @@ class LayerwiseAuxiliaryObjective(nn.Module):
         self.detach_target = detach_target
         self.loss_type = loss_type
         self.aux_dim = aux_dim or layer_dims[0]
+        self.skip_last_aux_layers = max(0, skip_last_aux_layers)
         self.predictors = nn.ModuleList(
             [nn.Sequential(nn.LayerNorm(dim), nn.Linear(dim, self.aux_dim)) for dim in layer_dims]
         )
@@ -107,7 +109,8 @@ class LayerwiseAuxiliaryObjective(nn.Module):
         losses: list[torch.Tensor] = []
         per_layer: dict[str, float] = {}
         total_candidates = len(candidates)
-        for layer_index, hidden in enumerate(hidden_states):
+        active_hidden_layers = max(0, len(hidden_states) - self.skip_last_aux_layers)
+        for layer_index, hidden in enumerate(hidden_states[:active_hidden_layers]):
             weights = compute_future_weights(
                 total_candidates=total_candidates,
                 layer_index=layer_index,

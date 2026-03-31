@@ -13,6 +13,8 @@ class DatasetConfig:
     train_subset: float = 1.0
     val_subset: float = 1.0
     test_subset: float = 1.0
+    image_size: int | None = None
+    normalization: str = "dataset"
 
 
 @dataclass
@@ -24,20 +26,28 @@ class ModelConfig:
     patch_size: int = 4
     num_heads: int = 4
     mlp_ratio: float = 4.0
+    pretrained: bool = False
 
 
 @dataclass
 class OptimizerConfig:
+    name: str = "adamw"
     lr: float = 3e-4
     weight_decay: float = 1e-4
+    momentum: float = 0.9
     max_epochs: int = 10
     gradient_clip_val: float = 1.0
+    scheduler: str = "none"
+    min_lr: float = 1e-6
+    warmup_epochs: int = 0
+    label_smoothing: float = 0.0
 
 
 @dataclass
 class AuxiliaryLossConfig:
     enabled: bool = False
     beta: float = 0.0
+    beta_schedule: str = "constant"
     strategy: str = "fixed"
     lookahead: int = 1
     sigma: float = 1.0
@@ -47,6 +57,7 @@ class AuxiliaryLossConfig:
     aux_dim: int = 0
     loss_type: str = "cosine"
     projector_seed: int = 17
+    skip_last_aux_layers: int = 0
 
 
 @dataclass

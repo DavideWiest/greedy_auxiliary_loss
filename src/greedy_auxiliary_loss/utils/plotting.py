@@ -28,7 +28,12 @@ def set_paper_style() -> None:
     )
 
 
-def save_strategy_plot(frame: pd.DataFrame, path: str | Path) -> None:
+def save_strategy_plot(
+    frame: pd.DataFrame,
+    path: str | Path,
+    ylabel: str = "Validation accuracy",
+    title: str | None = None,
+) -> None:
     set_paper_style()
     fig, ax = plt.subplots(figsize=(6.4, 3.2))
     palette = sns.color_palette("Set2", n_colors=max(frame["label"].nunique(), 3))
@@ -43,7 +48,9 @@ def save_strategy_plot(frame: pd.DataFrame, path: str | Path) -> None:
         linewidth=1.0,
     )
     ax.set_xlabel("")
-    ax.set_ylabel("Validation accuracy")
+    ax.set_ylabel(ylabel)
+    if title:
+        ax.set_title(title)
     ax.tick_params(axis="x", rotation=18)
     lower = max(0.0, float(frame["mean"].min() - 0.0015))
     upper = min(1.0, float(frame["mean"].max() + 0.0015))
